@@ -9,6 +9,9 @@ import { CartProvider } from "@/contexts/CartContext";
 import HomePage from "./pages/HomePage";
 import ProductsPage from "./pages/ProductsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 import CartPage from "./pages/CartPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -30,6 +33,9 @@ const App = () => (
               <Route path="/" element={<HomePage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import ProductCard from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -17,14 +18,26 @@ import { Search } from 'lucide-react';
 import api from '@/lib/api';
 
 const ProductsPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
   const productsPerPage = 12;
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params: any = {};
+    if (selectedCategory !== 'all') params.category = selectedCategory;
+    if (sortBy !== 'newest') params.sort = sortBy;
+    if (searchQuery) params.search = searchQuery;
+    if (currentPage > 1) params.page = currentPage;
+    
+    setSearchParams(params);
+  }, [selectedCategory, sortBy, searchQuery, currentPage, setSearchParams]);
 
   // Fetch products
   const { data: productsData, isLoading: isProductsLoading } = useQuery({
@@ -86,7 +99,7 @@ const ProductsPage: React.FC = () => {
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">All Products</h1>
           <p className="text-lg text-gray-600 max-w-3xl">
-            Browse our collection of premium overlays, templates, and graphics designed for streamers and content creators.
+            Browse our collection of premium clothing designed for comfort and style.
           </p>
         </div>
       </section>

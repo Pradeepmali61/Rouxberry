@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Define form schema
 const formSchema = z.object({
@@ -38,6 +39,7 @@ const RegisterPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -52,16 +54,41 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     try {
       setIsLoading(true);
+      setErrorMessage(null);
+      
       await register({
         name: data.name,
         email: data.email,
         password: data.password,
       });
+      
       navigate('/');
       toast.success('Registration successful! Welcome to OverlaySnow.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      toast.error('Registration failed. Please try again.');
+      
+      // Extract and display specific error message if available
+      let message = 'Registration failed. Please try again.';
+      
+      if (error.message) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error.response?.data?.detail) {
+        message = error.response.data.detail;
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+      
+      // Common error scenarios
+      if (message.toLowerCase().includes('email') && message.toLowerCase().includes('exists')) {
+        message = 'This email address is already registered. Please try logging in instead.';
+      } else if (message.toLowerCase().includes('password') && message.toLowerCase().includes('weak')) {
+        message = 'Please choose a stronger password. It should include a mix of letters, numbers, and special characters.';
+      }
+      
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +99,12 @@ const RegisterPage: React.FC = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Create an Account</h1>
+          
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
